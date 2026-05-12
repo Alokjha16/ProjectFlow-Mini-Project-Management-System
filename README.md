@@ -271,9 +271,9 @@ Accepts any combination of fields (partial update):
 | Sort tasks by priority      | ✅     |
 | Input validation            | ✅     |
 | Error handling              | ✅     |
-| Task counts per project     | ✅ (bonus) |
-| Cascade delete              | ✅ (bonus) |
-| Dark mode UI                | ✅ (bonus) |
+| Task counts per project     | ✅     |
+| Cascade delete              | ✅     |  
+| Dark mode UI                | ✅     |
 
 ---
 
@@ -312,11 +312,4 @@ Validation errors (422):
 
 ---
 
-## 📬 Postman Collection
 
-Import `ProjectFlow.postman_collection.json` into Postman to test all endpoints.
-
-Set environment variable: `BASE_URL = http://localhost:5000`
-=======
-# ProjectFlow-Mini-Project-Management-System
->>>>>>> 5d205e359f1995895ae7b800e4c2dca29cf14ba9

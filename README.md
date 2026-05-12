@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🚀 ProjectFlow — Mini Project Management System
 
 A full-stack Project Management System with REST APIs (Node.js/Express) and a responsive dark-themed UI.

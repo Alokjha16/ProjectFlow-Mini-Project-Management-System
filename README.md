@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚀 ProjectFlow — Mini Project Management System
 
 A full-stack Project Management System with REST APIs (Node.js/Express) and a responsive dark-themed UI.
@@ -316,3 +317,6 @@ Validation errors (422):
 Import `ProjectFlow.postman_collection.json` into Postman to test all endpoints.
 
 Set environment variable: `BASE_URL = http://localhost:5000`
+=======
+# ProjectFlow-Mini-Project-Management-System
+>>>>>>> 5d205e359f1995895ae7b800e4c2dca29cf14ba9

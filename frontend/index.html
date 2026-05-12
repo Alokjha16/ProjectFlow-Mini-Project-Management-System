@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectFlow – Project Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: #252836;
+      --accent: #5b6cff;
+      --accent-soft: rgba(91,108,255,0.12);
+      --green: #22c77a;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      left: 0; top: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sidebar-logo span { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+    .sidebar-nav { padding: 16px 12px; flex: 1; }
+    .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 12px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── Main ── */
+    .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+
+    .topbar h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+    .topbar-right { display: flex; gap: 12px; align-items: center; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #4a5be0; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(91,108,255,0.3); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+    .btn-danger { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn svg { width: 14px; height: 14px; }
+
+    /* ── Content ── */
+    .content { padding: 32px; flex: 1; }
+
+    /* ── Stats Row ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+    .stat-card.blue .stat-value { color: var(--accent); }
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.orange .stat-value { color: var(--orange); }
+    .stat-card.red .stat-value { color: var(--red); }
+
+    /* ── Project Grid ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #a78bfa);
+    }
+    .project-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+
+    .project-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .project-card p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; min-height: 40px; }
+
+    .project-meta { display: flex; align-items: center; justify-content: space-between; }
+    .project-date { font-size: 11px; color: var(--muted); }
+
+    .task-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .pill.todo { background: rgba(107,114,128,0.2); color: var(--muted); }
+    .pill.inprogress { background: rgba(245,158,11,0.15); color: var(--orange); }
+    .pill.done { background: rgba(34,199,122,0.15); color: var(--green); }
+
+    .project-actions { display: flex; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+    /* ── Tasks View ── */
+    .tasks-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .back-btn:hover { text-decoration: underline; }
+
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .filter-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── Task Table ── */
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    .task-table tr:hover td { background: var(--surface2); }
+    .task-table tr:last-child td { border-bottom: none; }
+
+    .task-title { font-weight: 500; margin-bottom: 3px; }
+    .task-desc { font-size: 12px; color: var(--muted); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .status-badge.todo { background: rgba(107,114,128,0.15); color: #9ca3af; }
+    .status-badge.in-progress { background: rgba(245,158,11,0.15); color: var(--orange); }
+    .status-badge.done { background: rgba(34,199,122,0.15); color: var(--green); }
+
+    .priority-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600;
+    }
+    .priority-badge.high { color: var(--red); }
+    .priority-badge.medium { color: var(--orange); }
+    .priority-badge.low { color: var(--green); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(4px);
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.2s ease;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .modal h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── Pagination ── */
+    .pagination { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 24px; }
+    .page-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .page-btn:hover { color: var(--text); border-color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-info { font-size: 13px; color: var(--muted); }
+
+    /* ── Empty State ── */
+    .empty { text-align: center; padding: 64px 32px; }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .empty p { color: var(--muted); font-size: 14px; }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+      animation: slideUp 0.2s ease;
+      max-width: 320px;
+    }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error { border-left: 3px solid var(--red); }
+
+    /* ── Loading ── */
+    .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; margin: 40px auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .table-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    const API = 'http://localhost:3001';
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let state = {
+      view: 'projects',         // 'projects' | 'tasks'
+      projects: [],
+      tasks: [],
+      currentProject: null,
+      stats: { total: 0, todo: 0, inProgress: 0, done: 0 },
+      projectPage: 1,
+      projectTotalPages: 1,
+      taskPage: 1,
+      taskTotalPages: 1,
+      taskFilter: '',
+      taskSort: 'created_at',
+      taskOrder: 'desc',
+      modal: null,              // null | 'addProject' | 'addTask' | 'editTask'
+      editingTask: null,
+      loading: false,
+      toasts: []
+    };
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    async function api(path, opts = {}) {
+      const res = await fetch(`${API}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...opts
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'API Error');
+      return data;
+    }
+
+    function toast(msg, type = 'success') {
+      const id = Date.now();
+      state.toasts.push({ id, msg, type });
+      render();
+      setTimeout(() => {
+        state.toasts = state.toasts.filter(t => t.id !== id);
+        render();
+      }, 3500);
+    }
+
+    function fmt(date) {
+      if (!date) return '—';
+      return new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // ── Data Loading ──────────────────────────────────────────────────────────
+    async function loadProjects(page = 1) {
+      state.loading = true; render();
+      const data = await api(`/projects?page=${page}&limit=9`);
+      state.projects = data.data;
+      state.projectPage = data.pagination.page;
+      state.projectTotalPages = data.pagination.total_pages;
+      // Stats
+      let todo = 0, ip = 0, done = 0;
+      data.data.forEach(p => { todo += p.task_counts.todo; ip += p.task_counts.in_progress; done += p.task_counts.done; });
+      state.stats = { total: data.pagination.total, todo, inProgress: ip, done };
+      state.loading = false;
+      render();
+    }
+
+    async function loadTasks(projectId, page = 1) {
+      state.loading = true; render();
+      let qs = `?page=${page}&limit=10&sort_by=${state.taskSort}&order=${state.taskOrder}`;
+      if (state.taskFilter) qs += `&status=${state.taskFilter}`;
+      const data = await api(`/projects/${projectId}/tasks${qs}`);
+      state.tasks = data.data;
+      state.taskPage = data.pagination.page;
+      state.taskTotalPages = data.pagination.total_pages;
+      state.loading = false;
+      render();
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Delete this project and all its tasks?')) return;
+      await api(`/projects/${id}`, { method: 'DELETE' });
+      toast('Project deleted');
+      loadProjects(state.projectPage);
+    }
+
+    async function deleteTask(id) {
+      if (!confirm('Delete this task?')) return;
+      await api(`/tasks/${id}`, { method: 'DELETE' });
+      toast('Task deleted');
+      loadTasks(state.currentProject.id, state.taskPage);
+    }
+
+    // ── Form Submissions ──────────────────────────────────────────────────────
+    async function submitProject(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      await api('/projects', {
+        method: 'POST',
+        body: JSON.stringify({ name: fd.get('name'), description: fd.get('description') })
+      });
+      toast('Project created!');
+      state.modal = null;
+      loadProjects(1);
+    }
+
+    async function submitTask(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const body = {
+        title: fd.get('title'),
+        description: fd.get('description'),
+        status: fd.get('status'),
+        priority: fd.get('priority'),
+        due_date: fd.get('due_date') || null
+      };
+      if (state.editingTask) {
+        await api(`/tasks/${state.editingTask.id}`, { method: 'PUT', body: JSON.stringify(body) });
+        toast('Task updated!');
+      } else {
+        await api(`/projects/${state.currentProject.id}/tasks`, { method: 'POST', body: JSON.stringify(body) });
+        toast('Task created!');
+      }
+      state.modal = null; state.editingTask = null;
+      loadTasks(state.currentProject.id, state.taskPage);
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function render() {
+      const root = document.getElementById('root');
+      root.innerHTML = `
+        ${renderLayout()}
+        ${state.modal ? renderModal() : ''}
+        ${renderToasts()}
+      `;
+      attachEvents();
+    }
+
+    function renderLayout() {
+      return `
+        <div class="layout">
+          ${renderSidebar()}
+          <div class="main">
+            ${renderTopbar()}
+            <div class="content">
+              ${state.view === 'projects' ? renderProjectsView() : renderTasksView()}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSidebar() {
+      return `
+        <div class="sidebar">
+          <div class="sidebar-logo">
+            <h1>ProjectFlow</h1>
+            <span>Management System</span>
+          </div>
+          <nav class="sidebar-nav">
+            <div class="nav-label">Navigation</div>
+            <div class="nav-item ${state.view==='projects'?'active':''}" data-action="goProjects">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+              Projects
+            </div>
+            ${state.currentProject ? `
+            <div class="nav-item ${state.view==='tasks'?'active':''}" data-action="goTasks">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M9 12l2 2 4-4M7 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2"/></svg>
+              Tasks
+            </div>` : ''}
+          </nav>
+        </div>
+      `;
+    }
+
+    function renderTopbar() {
+      const title = state.view === 'tasks' ? state.currentProject?.name : 'Projects';
+      return `
+        <div class="topbar">
+          <h2>${title}</h2>
+          <div class="topbar-right">
+            ${state.view === 'projects'
+              ? `<button class="btn btn-primary" data-action="openAddProject"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>New Project</button>`
+              : `<button class="btn btn-primary" data-action="openAddTask"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>New Task</button>`
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProjectsView() {
+      if (state.loading) return `<div class="spinner"></div>`;
+      return `
+        <div class="stats-row">
+          <div class="stat-card blue">
+            <div class="stat-label">Total Projects</div>
+            <div class="stat-value">${state.stats.total}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Todo Tasks</div>
+            <div class="stat-value">${state.stats.todo}</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value">${state.stats.inProgress}</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value">${state.stats.done}</div>
+          </div>
+        </div>
+
+        <div class="section-title">All Projects</div>
+
+        ${state.projects.length === 0 ? `
+          <div class="empty">
+            <div class="empty-icon">📁</div>
+            <h3>No projects yet</h3>
+            <p>Create your first project to get started</p>
+          </div>
+        ` : `
+          <div class="projects-grid">
+            ${state.projects.map(p => `
+              <div class="project-card" data-project-id="${p.id}">
+                <h3>${escHtml(p.name)}</h3>
+                <p>${p.description ? escHtml(p.description) : '<i style="opacity:0.4">No description</i>'}</p>
+                <div class="project-meta">
+                  <div class="task-pills">
+                    <span class="pill todo">${p.task_counts.todo} todo</span>
+                    <span class="pill inprogress">${p.task_counts.in_progress} active</span>
+                    <span class="pill done">${p.task_counts.done} done</span>
+                  </div>
+                  <span class="project-date">${fmt(p.created_at)}</span>
+                </div>
+                <div class="project-actions">
+                  <button class="btn btn-ghost btn-sm" data-action="openProject" data-id="${p.id}">View Tasks</button>
+                  <button class="btn btn-danger btn-sm" data-action="deleteProject" data-id="${p.id}">Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          ${renderPagination(state.projectPage, state.projectTotalPages, 'project')}
+        `}
+      `;
+    }
+
+    function renderTasksView() {
+      if (state.loading) return `<div class="spinner"></div>`;
+      return `
+        <div class="tasks-header">
+          <button class="back-btn" data-action="goProjects">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+            All Projects
+          </button>
+          <span style="color:var(--border)">|</span>
+          <span style="font-size:14px;color:var(--muted)">${state.currentProject?.name}</span>
+        </div>
+
+        <div class="filter-bar" style="margin-bottom:20px">
+          <select class="filter-select" data-action="filterStatus">
+            <option value="">All Status</option>
+            <option value="todo" ${state.taskFilter==='todo'?'selected':''}>Todo</option>
+            <option value="in-progress" ${state.taskFilter==='in-progress'?'selected':''}>In Progress</option>
+            <option value="done" ${state.taskFilter==='done'?'selected':''}>Done</option>
+          </select>
+          <select class="filter-select" data-action="sortTasks">
+            <option value="created_at" ${state.taskSort==='created_at'?'selected':''}>Sort: Created</option>
+            <option value="due_date" ${state.taskSort==='due_date'?'selected':''}>Sort: Due Date</option>
+            <option value="priority" ${state.taskSort==='priority'?'selected':''}>Sort: Priority</option>
+          </select>
+          <select class="filter-select" data-action="orderTasks">
+            <option value="desc" ${state.taskOrder==='desc'?'selected':''}>↓ Desc</option>
+            <option value="asc" ${state.taskOrder==='asc'?'selected':''}>↑ Asc</option>
+          </select>
+        </div>
+
+        ${state.tasks.length === 0 ? `
+          <div class="empty">
+            <div class="empty-icon">✅</div>
+            <h3>No tasks found</h3>
+            <p>${state.taskFilter ? 'No tasks match this filter' : 'Create your first task'}</p>
+          </div>
+        ` : `
+          <div class="table-wrapper">
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${state.tasks.map(t => `
+                  <tr>
+                    <td>
+                      <div class="task-title">${escHtml(t.title)}</div>
+                      ${t.description ? `<div class="task-desc">${escHtml(t.description.substring(0,60))}${t.description.length>60?'...':''}</div>` : ''}
+                    </td>
+                    <td><span class="status-badge ${t.status}">${t.status}</span></td>
+                    <td><span class="priority-badge ${t.priority}">● ${t.priority}</span></td>
+                    <td>${fmt(t.due_date)}</td>
+                    <td>${fmt(t.created_at)}</td>
+                    <td>
+                      <div style="display:flex;gap:6px">
+                        <button class="btn btn-ghost btn-sm" data-action="editTask" data-task='${JSON.stringify(t)}'>Edit</button>
+                        <button class="btn btn-danger btn-sm" data-action="deleteTask" data-id="${t.id}">Del</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${renderPagination(state.taskPage, state.taskTotalPages, 'task')}
+        `}
+      `;
+    }
+
+    function renderPagination(page, totalPages, type) {
+      if (totalPages <= 1) return '';
+      const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+      return `
+        <div class="pagination">
+          <button class="page-btn" data-action="page-${type}" data-page="${page-1}" ${page<=1?'disabled':''}>‹</button>
+          ${pages.map(p => `<button class="page-btn ${p===page?'active':''}" data-action="page-${type}" data-page="${p}">${p}</button>`).join('')}
+          <button class="page-btn" data-action="page-${type}" data-page="${page+1}" ${page>=totalPages?'disabled':''}>›</button>
+        </div>
+      `;
+    }
+
+    function renderModal() {
+      if (state.modal === 'addProject') {
+        return `
+          <div class="modal-overlay" data-action="closeModal">
+            <div class="modal" onclick="event.stopPropagation()">
+              <h3>New Project</h3>
+              <form id="projectForm">
+                <div class="form-group">
+                  <label>Project Name *</label>
+                  <input name="name" placeholder="e.g. E-commerce Platform" required />
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea name="description" placeholder="Brief description..."></textarea>
+                </div>
+                <div class="modal-actions">
+                  <button type="button" class="btn btn-ghost" data-action="closeModal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Create Project</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+      if (state.modal === 'addTask' || state.modal === 'editTask') {
+        const t = state.editingTask;
+        return `
+          <div class="modal-overlay" data-action="closeModal">
+            <div class="modal" onclick="event.stopPropagation()">
+              <h3>${t ? 'Edit Task' : 'New Task'}</h3>
+              <form id="taskForm">
+                <div class="form-group">
+                  <label>Title *</label>
+                  <input name="title" placeholder="Task title" required value="${t ? escHtml(t.title) : ''}" />
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea name="description" placeholder="Details...">${t?.description || ''}</textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                      <option value="todo" ${(!t||t.status==='todo')?'selected':''}>Todo</option>
+                      <option value="in-progress" ${t?.status==='in-progress'?'selected':''}>In Progress</option>
+                      <option value="done" ${t?.status==='done'?'selected':''}>Done</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Priority</label>
+                    <select name="priority">
+                      <option value="low" ${t?.priority==='low'?'selected':''}>Low</option>
+                      <option value="medium" ${(!t||t.priority==='medium')?'selected':''}>Medium</option>
+                      <option value="high" ${t?.priority==='high'?'selected':''}>High</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Due Date</label>
+                  <input type="date" name="due_date" value="${t?.due_date?.split('T')[0] || ''}" />
+                </div>
+                <div class="modal-actions">
+                  <button type="button" class="btn btn-ghost" data-action="closeModal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">${t ? 'Update Task' : 'Create Task'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderToasts() {
+      return `
+        <div class="toast-container">
+          ${state.toasts.map(t => `<div class="toast ${t.type}">${t.type === 'success' ? '✓' : '✗'} ${t.msg}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Event Delegation ──────────────────────────────────────────────────────
+    function attachEvents() {
+      document.addEventListener('click', handleClick, { once: true });
+
+      const pf = document.getElementById('projectForm');
+      if (pf) pf.addEventListener('submit', submitProject);
+
+      const tf = document.getElementById('taskForm');
+      if (tf) tf.addEventListener('submit', submitTask);
+
+      document.querySelectorAll('[data-action="filterStatus"]').forEach(el => el.addEventListener('change', e => {
+        state.taskFilter = e.target.value;
+        loadTasks(state.currentProject.id, 1);
+      }));
+      document.querySelectorAll('[data-action="sortTasks"]').forEach(el => el.addEventListener('change', e => {
+        state.taskSort = e.target.value;
+        loadTasks(state.currentProject.id, 1);
+      }));
+      document.querySelectorAll('[data-action="orderTasks"]').forEach(el => el.addEventListener('change', e => {
+        state.taskOrder = e.target.value;
+        loadTasks(state.currentProject.id, 1);
+      }));
+    }
+
+    async function handleClick(e) {
+      const el = e.target.closest('[data-action]');
+      if (!el) { attachEvents(); return; }
+      const action = el.dataset.action;
+
+      try {
+        if (action === 'goProjects') { state.view = 'projects'; loadProjects(state.projectPage); }
+        else if (action === 'goTasks') { state.view = 'tasks'; loadTasks(state.currentProject.id, state.taskPage); }
+        else if (action === 'openAddProject') { state.modal = 'addProject'; render(); }
+        else if (action === 'openAddTask') { state.modal = 'addTask'; state.editingTask = null; render(); }
+        else if (action === 'closeModal') { state.modal = null; state.editingTask = null; render(); }
+        else if (action === 'openProject') {
+          const proj = state.projects.find(p => p.id == el.dataset.id);
+          state.currentProject = proj;
+          state.view = 'tasks';
+          state.taskFilter = '';
+          loadTasks(proj.id, 1);
+        }
+        else if (action === 'deleteProject') { await deleteProject(el.dataset.id); }
+        else if (action === 'deleteTask') { await deleteTask(el.dataset.id); }
+        else if (action === 'editTask') {
+          state.editingTask = JSON.parse(el.dataset.task);
+          state.modal = 'editTask';
+          render();
+        }
+        else if (action === 'page-project') { loadProjects(parseInt(el.dataset.page)); }
+        else if (action === 'page-task') { loadTasks(state.currentProject.id, parseInt(el.dataset.page)); }
+        else { attachEvents(); }
+      } catch (err) {
+        toast(err.message, 'error');
+        render();
+      }
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadProjects(1);
+  </script>
+</body>
+</html>

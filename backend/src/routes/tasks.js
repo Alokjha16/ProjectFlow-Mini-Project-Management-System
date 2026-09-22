@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router({ mergeParams: true });
+const router = express.Router({ mergeParamsl: true });
 const { getDB, dbRun, dbGet, dbAll } = require('../db/database');
 const { handleValidationErrors } = require('../middleware/errorHandler');
 const { taskCreateValidator, taskUpdateValidator, taskListValidator } = require('../validators/taskValidators');

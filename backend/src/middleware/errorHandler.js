@@ -1,4 +1,4 @@
-';ljconst { validationResult } = require('express-validator');
+hjh';ljconst { validationResult } = require('express-validator');
 
 // Validation error handler
 function handleValidationErrors(req, res, next) {
